@@ -30,8 +30,8 @@ public class Zombie extends ZombieActor {
 	private int ArmCount = 2;
 	private int LegCount = 2;
 	private boolean moved = true;
-	private ArrayList<WeaponItem> availableLimbs = 
-		{new ZombieArm(), new ZombieArm(), new ZombieLeg(), new ZombieLeg()};
+	private ArrayList<WeaponItem> availableLimbs = new ArrayList<>(4);
+	
 	
 	private Behaviour[] behaviours = {
 			new AttackBehaviour(ZombieCapability.ALIVE),
@@ -40,7 +40,12 @@ public class Zombie extends ZombieActor {
 	};
 
 	public Zombie(String name) {
+		
 		super(name, 'Z', 100, ZombieCapability.UNDEAD);
+		availableLimbs.add(new ZombieArm());
+		availableLimbs.add(new ZombieArm());
+		availableLimbs.add(new ZombieLeg());
+		availableLimbs.add(new ZombieLeg());
 	}
 	
 	public void loseLimb(GameMap map) {
