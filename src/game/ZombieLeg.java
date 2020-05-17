@@ -6,7 +6,7 @@ public class ZombieLeg extends WeaponItem{
 
 	public ZombieLeg() {
 		super("Simple club", 'L', 14, "thump");
-		// TODO Auto-generated constructor stub
+	
 	}
 
 
