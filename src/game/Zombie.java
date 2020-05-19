@@ -25,22 +25,27 @@ import java.util.Random;
  *
  */
 public class Zombie extends ZombieActor {
-	
+	// RNG variable
 	private Random successRate = new Random();
-	private int ArmCount = 2;
-	private int LegCount = 2;
-	private boolean moved = true;
+	// The number of arms the Zombie has
+	private Integer ArmCount = new Integer(2);
+	// The number of legs the Zombie has
+	private Integer LegCount = new Integer(2);
+	// A boolean that checks if a Zombie has lost a limb or not
+	private Boolean lostLimb = new Boolean(false);
+	// A boolean that checks if a Zombie moved last turn
+	private Boolean moved = new Boolean(true);
+	// An array list that holds all the available limbs the Zombie has
 	private ArrayList<WeaponItem> availableLimbs = new ArrayList<>(4);
-	
-	
+	// Holds all behaviours the Zombie has
 	private Behaviour[] behaviours = {
 			new AttackBehaviour(ZombieCapability.ALIVE),
 			new HuntBehaviour(Human.class, 10),
 			new WanderBehaviour()
 	};
-
+	
+	// Constructor for Zombie class and gives the Zombie 2 arms and 2 Legs
 	public Zombie(String name) {
-		
 		super(name, 'Z', 100, ZombieCapability.UNDEAD);
 		availableLimbs.add(new ZombieArm());
 		availableLimbs.add(new ZombieArm());
@@ -48,6 +53,8 @@ public class Zombie extends ZombieActor {
 		availableLimbs.add(new ZombieLeg());
 	}
 	
+	// A method that drops a Zombie limb. If has one arm, then it has a 50% chance of dropping
+	// a weapon. If it has no arms, it's guaranteed to drop a weapon if it has one.
 	public void loseLimb(GameMap map) {
 		int availableLimbsSize = this.availableLimbs.size();
 		if (availableLimbsSize > 0) {
@@ -55,7 +62,7 @@ public class Zombie extends ZombieActor {
 			WeaponItem lostLimb = this.availableLimbs.get(lostLimbIdx);
 			this.availableLimbs.remove(lostLimbIdx);
 			
-			if (lostLimb.getClass().getName() == "ZombieArm") {
+			if (lostLimb.getClass().getName().equals("ZombieArm")) {
 				this.ArmCount -= 1;
 			}
 			else {
@@ -63,7 +70,7 @@ public class Zombie extends ZombieActor {
 			}
 			
 			if (lostLimb instanceof ZombieArm) {
-				if ((successRate.nextBoolean() && this.ArmCount == 2) || this.ArmCount == 1) {
+				if ((successRate.nextBoolean() && this.ArmCount.equals(1)) || this.ArmCount.equals(0)) {
 					for (Item item : this.inventory) {
 						if (item instanceof WeaponItem) {
 							this.removeItemFromInventory(item);
@@ -76,15 +83,24 @@ public class Zombie extends ZombieActor {
 			setLostLimb.execute(this, map);
 		}
 	}
+	
+	@Override
+	public void hurt(int points) {
+		hitPoints -= points;
+
+		if (successRate.nextInt(4) == 0) {
+			this.lostLimb = true;
+		}
+	}
 
 	@Override
 	public IntrinsicWeapon getIntrinsicWeapon() {
 		
-		if (this.ArmCount == 0) {
+		if (this.ArmCount.equals(0)) {
 			return new IntrinsicWeapon(11, "bites");
 		}
 		
-		else if (this.ArmCount == 1) {
+		else if (this.ArmCount.equals(1)) {
 			if (successRate.nextInt(4) == 0) {
 				return new IntrinsicWeapon(10, "punches");
 			}
@@ -118,25 +134,25 @@ public class Zombie extends ZombieActor {
 			System.out.println("Zombie: Braaaaains!");
 		}
 		
+		if (lostLimb) {
+			this.loseLimb(map);
+			lostLimb = !lostLimb;
+		}
+		
 		for (Item item : map.locationOf(this).getItems()) {
-			if (item instanceof Weapon) {
+			if (item instanceof WeaponItem) {
 				return new PickUpItemAction(item);
 			}
 		}
 		
 		for (Behaviour behaviour : behaviours) {
 			Action action = behaviour.getAction(this, map);
-			if (action instanceof AttackAction) {
-				if (successRate.nextInt(4) == 0) {
-					this.loseLimb(map);
-					return action;
-				}
-			}
-			else if (action != null) {
-				if ((LegCount == 0 && action.getClass().getName() != "MoveActorAction") ||
-						(LegCount == 1 && !moved && action instanceof MoveActorAction) ||
-						(LegCount == 2)) {
-					if (LegCount == 1) {
+
+			if (action != null) {
+				if ((LegCount.equals(0) && action.getClass().getName() != "MoveActorAction") ||
+					(LegCount.equals(1) && !moved && action instanceof MoveActorAction) || 
+					(LegCount.equals(2))) {
+					if (LegCount.equals(1)) {
 						moved = !moved;
 					}
 					return action;
