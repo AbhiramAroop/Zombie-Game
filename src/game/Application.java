@@ -3,6 +3,8 @@ package game;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.monash.fit2099.demo.mars.zombieArm;
+import edu.monash.fit2099.demo.mars.zombieLeg;
 import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.Display;
 import edu.monash.fit2099.engine.FancyGroundFactory;
@@ -74,7 +76,11 @@ public class Application {
 		gameMap.at(10,  4).addActor(new Zombie("Uuuurgh"));
 		gameMap.at(50, 18).addActor(new Zombie("Mortalis"));
 		gameMap.at(1, 10).addActor(new Zombie("Gaaaah"));
-		gameMap.at(62, 12).addActor(new Zombie("Aaargh"));	
+		gameMap.at(62, 12).addActor(new Zombie("Aaargh"));
+		gameMap.at(42, 16).setGround(new Crop());
+		gameMap.at(30, 12).addActor(new Farmer("James"));
+		gameMap.at(43, 16).addItem(new zombieArm());
+		gameMap.at(43, 17).addItem(new zombieLeg());
 		world.run();
 	}
 }
