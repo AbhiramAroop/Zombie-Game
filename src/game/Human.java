@@ -1,5 +1,6 @@
 package game;
 
+import java.util.List;
 import java.util.Random;
 
 import edu.monash.fit2099.engine.Action;
@@ -7,20 +8,19 @@ import edu.monash.fit2099.engine.Actions;
 import edu.monash.fit2099.engine.Display;
 import edu.monash.fit2099.engine.DoNothingAction;
 import edu.monash.fit2099.engine.GameMap;
+import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Location;
+import edu.monash.fit2099.engine.PickUpItemAction;
 
 /**
  * Class representing an ordinary human.
- * 
- * 
- * @author ram
  *
  */
 public class Human extends ZombieActor {
-	
+
 	private Random successRate = new Random();
 	private int toZombieCounter = 0;
-	private Behaviour behaviour = new WanderBehaviour();
+	protected Behaviour behaviour = new WanderBehaviour();
 
 	/**
 	 * The default constructor creates default Humans
@@ -58,7 +58,23 @@ public class Human extends ZombieActor {
 				return new DoNothingAction();	
 			}
 		}
+		
+		for (int i = 0; i < map.locationOf(this).getItems().size(); i++) {
+			if (map.locationOf(this).getItems().get(i) instanceof Food) {
+				return new PickUpItemAction(map.locationOf(this).getItems().get(i));
+			}
+		}
+		
+		
+		
+		List<Item> inventory = getInventory();
+		
+		for (int i = 0; i < inventory.size(); i++) {
+			if (inventory.get(i) instanceof Food) {
+				return new eatAction((Food) inventory.get(i));
+			}
+		}
+		
 		return behaviour.getAction(this, map);
 	}
-
 }

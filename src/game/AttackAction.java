@@ -70,6 +70,7 @@ public class AttackAction extends Action {
 				dropActions.add(item.getDropAction());
 			for (Action drop : dropActions)		
 				drop.execute(target, map);
+
 			map.removeActor(target);	
 			
 			result += System.lineSeparator() + target + " is killed.";
