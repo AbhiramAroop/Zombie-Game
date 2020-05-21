@@ -73,7 +73,7 @@ public class Human extends ZombieActor {
 		List<Item> inventory = getInventory();
 		
 		for (int i = 0; i < inventory.size(); i++) {
-			if (inventory.get(i) instanceof Food) {
+			if (inventory.get(i) instanceof Food && this.hitPoints < this.maxHitPoints) {
 				return new eatAction((Food) inventory.get(i));
 			}
 		}

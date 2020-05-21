@@ -1,7 +1,5 @@
 package game;
 
-import edu.monash.fit2099.demo.mars.zombieArm;
-import edu.monash.fit2099.demo.mars.zombieLeg;
 import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actions;
 import edu.monash.fit2099.engine.Actor;
@@ -15,6 +13,8 @@ import edu.monash.fit2099.engine.MoveActorAction;
 import edu.monash.fit2099.engine.PickUpItemAction;
 import edu.monash.fit2099.engine.Weapon;
 import edu.monash.fit2099.engine.WeaponItem;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -58,14 +58,13 @@ public class Zombie extends ZombieActor {
 	// A method that drops a Zombie limb. If has one arm, then it has a 50% chance of dropping
 	// a weapon. If it has no arms, it's guaranteed to drop a weapon if it has one.
 	public void loseLimb(GameMap map) {
-		
 		int availableLimbsSize = this.availableLimbs.size();
 		if (availableLimbsSize > 0) {
 			Integer lostLimbIdx = successRate.nextInt(availableLimbsSize);
 			WeaponItem lostLimb = this.availableLimbs.get(lostLimbIdx);
 			this.availableLimbs.remove(lostLimbIdx);
 			
-			if (lostLimb.getClass().getName() == "zombieArm") {
+			if (lostLimb.getClass().getName() == "ZombieArm") {
 				this.ArmCount -= 1;
 			}
 			else {
@@ -73,7 +72,7 @@ public class Zombie extends ZombieActor {
 			}
 			
 			if (lostLimb instanceof zombieArm) {
-				if ((successRate.nextBoolean() == true && this.ArmCount == 1) || this.ArmCount == 0) {
+				if ((successRate.nextBoolean() && this.ArmCount == 1) || this.ArmCount == 0) {
 					for (Item item : this.inventory) {
 						if (item instanceof WeaponItem) {
 							this.removeItemFromInventory(item);
@@ -82,8 +81,8 @@ public class Zombie extends ZombieActor {
 					}
 				}
 			}
-			setItemAction setLostLimb = new setItemAction(new zombieArm());
-			setLostLimb.execute(this, map);
+			setItemAction setLostLimb = new setItemAction(lostLimb);
+			System.out.println(setLostLimb.execute(this, map));
 		}
 	}
 	
@@ -134,7 +133,7 @@ public class Zombie extends ZombieActor {
 	public Action playTurn(Actions actions, Action lastAction, GameMap map, Display display) {
 		
 		if (successRate.nextInt(10) == 0) {
-			System.out.println("Zombie: Braaaaains!");
+			System.out.println(this.toString() + ": Braaaaains!");
 		}
 		
 		if (lostLimb) {
@@ -143,7 +142,7 @@ public class Zombie extends ZombieActor {
 		}
 		
 		for (Item item : map.locationOf(this).getItems()) {
-			if (item instanceof WeaponItem) {
+			if (item instanceof Weapon) {
 				return new PickUpItemAction(item);
 			}
 		}
@@ -165,3 +164,4 @@ public class Zombie extends ZombieActor {
 		return new DoNothingAction();	
 	}
 }
+
