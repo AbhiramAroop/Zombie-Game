@@ -1,4 +1,4 @@
-package edu.monash.fit2099.demo.mars;
+package game;
 
 import edu.monash.fit2099.engine.WeaponItem;
 

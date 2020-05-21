@@ -1,7 +1,5 @@
 package game;
 
-import edu.monash.fit2099.demo.mars.zombieArm;
-import edu.monash.fit2099.demo.mars.zombieLeg;
 import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actions;
 import edu.monash.fit2099.engine.Actor;
@@ -40,7 +38,7 @@ public class Zombie extends ZombieActor {
 	// A boolean that checks if a Zombie moved last turn
 	private boolean moved = true;
 	// An array list that holds all the available limbs the Zombie has
-	private ArrayList<WeaponItem> availableLimbs = new ArrayList<>(4);
+	private ArrayList<WeaponItem> availableLimbs = new ArrayList<WeaponItem>(4);
 	// Holds all behaviours the Zombie has
 	private Behaviour[] behaviours = {
 			new AttackBehaviour(ZombieCapability.ALIVE),

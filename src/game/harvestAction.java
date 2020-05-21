@@ -7,21 +7,28 @@ import edu.monash.fit2099.engine.Location;
 
 public class harvestAction extends Action{
 	
+	private Location location;
+	
+	public harvestAction(Location location) {
+		
+		this.location = location;
+		
+	}
+	
 	public String execute(Actor actor, GameMap map) {
 		
 		if (actor instanceof Farmer) {
 			
-			map.locationOf(actor).setGround(new Dirt());
+			location.setGround(new Dirt());
 			Food food = new Food();
 			
-			setItemAction placeItem = new setItemAction(food);
-			placeItem.execute(actor, map);
+			location.addItem(food);
 			
 		}
 		
 		else if (actor instanceof Player) {
 		
-			map.locationOf(actor).setGround(new Dirt());
+			location.setGround(new Dirt());
 			
 			Food food = new Food();
 			

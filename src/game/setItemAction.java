@@ -19,10 +19,17 @@ public class setItemAction extends Action{
 		int xCoorDrop = map.locationOf(actor).x();
 		int yCoorDrop = map.locationOf(actor).y();
 		
-		xCoorDrop += successRate.nextInt(2);
-		yCoorDrop += successRate.nextInt(2);
+		int[] posMove = {-1, 0, 1};
 		
-		map.at(xCoorDrop, yCoorDrop) .addItem(item);
+		xCoorDrop += posMove[successRate.nextInt(3)];
+		yCoorDrop += posMove[successRate.nextInt(3)];
+		
+		map.at(xCoorDrop, yCoorDrop).addItem(item);
+		return menuDescription(actor);
+	}
+	
+	public String setCurrent(Actor actor, GameMap map) {
+		map.locationOf(actor).addItem(item);
 		return menuDescription(actor);
 	}
 	

@@ -43,26 +43,25 @@ public class AttackAction extends Action {
 		
 		// If the weapon is a bite, change the success rate to 1/3.
 		if (weapon.verb() == "bites") {
-			if (successRate.nextInt(4) == 3) {
+			if (successRate.nextInt(4) == 0) {
+				actor.heal(5);
 				flag = true;
 			}
 		}
-		// Else, the success rate is a 1/2/
+		// Else, the success rate is a 1/2
 		else {
 			flag = successRate.nextBoolean();
 		}
 		// If the flag is false, the actor misses.
-		if (flag == false) {
+		if (flag.equals(false)) {
 			return actor + " misses " + target + ".";
 		}
-		// Else, the actor executes its attack and heals itself.
-		actor.heal(5);
+		
 		int damage = weapon.damage();
 		String result = actor + " " + weapon.verb() + " " + target + " for " + damage + " damage.";
-
 		target.hurt(damage);
 		if (!target.isConscious()) {
-			Item corpse = new PortableItem("dead " + target, '%');
+			Corpse corpse = new Corpse("dead " + target);
 			map.locationOf(target).addItem(corpse);
 			
 			Actions dropActions = new Actions();
@@ -70,12 +69,11 @@ public class AttackAction extends Action {
 				dropActions.add(item.getDropAction());
 			for (Action drop : dropActions)		
 				drop.execute(target, map);
-
-			map.removeActor(target);	
+			map.removeActor(target);
 			
 			result += System.lineSeparator() + target + " is killed.";
 		}
-
+		
 		return result;
 	}
 

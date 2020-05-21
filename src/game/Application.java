@@ -3,8 +3,6 @@ package game;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.monash.fit2099.demo.mars.zombieArm;
-import edu.monash.fit2099.demo.mars.zombieLeg;
 import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.Display;
 import edu.monash.fit2099.engine.FancyGroundFactory;

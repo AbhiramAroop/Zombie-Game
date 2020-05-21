@@ -1,12 +1,14 @@
 package game;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import edu.monash.fit2099.demo.mars.zombieArm;
-import edu.monash.fit2099.demo.mars.zombieLeg;
+
 import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actions;
 import edu.monash.fit2099.engine.Display;
+import edu.monash.fit2099.engine.Exit;
 import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Menu;
@@ -43,22 +45,30 @@ public class Player extends Human {
 		List<Item> inventory = getInventory();
 		
 		for (int i = 0; i < inventory.size(); i++) {
-			if (inventory.get(i) instanceof Food) {
+			if (inventory.get(i) instanceof Food && this.hitPoints < this.maxHitPoints) {
 				actions.add(new eatAction((Food) inventory.get(i)));
 				break;
 			}
 		}
 		
-		if (map.locationOf(this).getGround() instanceof Crop) {
-			Crop crop = (Crop) map.locationOf(this).getGround();
-			if (crop.isGrown()) 
-				actions.add(new harvestAction());
-		}
 	
+		
 		for (int i = 0; i < this.getInventory().size(); i++) {
 			if (this.getInventory().get(i) instanceof zombieArm || this.getInventory().get(i) instanceof zombieLeg)  {
-				actions.add(new craftAction());
+				actions.add(new craftAction((WeaponItem) this.getInventory().get(i)));
+				break;
 				
+			}
+		}
+		
+		List<Exit> exits = new ArrayList<Exit>(map.locationOf(this).getExits());
+		Collections.shuffle(exits);
+		
+		for (Exit e: exits) {
+			if (!(e.getDestination().getGround() instanceof Crop))
+				continue;
+			if (((Crop) e.getDestination().getGround()).isGrown()) {
+				actions.add(new harvestAction(e.getDestination()));
 			}
 		}
 		
