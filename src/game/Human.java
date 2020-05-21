@@ -14,13 +14,10 @@ import edu.monash.fit2099.engine.PickUpItemAction;
 
 /**
  * Class representing an ordinary human.
- * 
- * 
- * @author ram
  *
  */
 public class Human extends ZombieActor {
-	
+
 	private Random successRate = new Random();
 	private int toZombieCounter = 0;
 	protected Behaviour behaviour = new WanderBehaviour();
@@ -80,5 +77,4 @@ public class Human extends ZombieActor {
 		
 		return behaviour.getAction(this, map);
 	}
-
 }
