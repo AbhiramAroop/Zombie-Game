@@ -1,11 +1,16 @@
 package game;
 
-import edu.monash.fit2099.engine.Item;
+/**
+ * 
+ * @author Abhiram Aroop
+ *
+ * An item that be picked up a Human and a PLayer, and only dropped by the Player
+ */
 
-public class Food extends Item{
+public class Food extends PortableItem{
 
 	public Food() {
-		super("Food",'f', true);
+		super("Food",'f');
 		
 	}
 

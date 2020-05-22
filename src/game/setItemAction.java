@@ -13,33 +13,23 @@ public class setItemAction extends Action{
 	public setItemAction(Item item) {
 		this.item = item;
 	}
-		
-	
-	
-	public void setItemRandom(GameMap map,Actor actor) {
-		
+
+	@Override
+	public String execute(Actor actor, GameMap map) {
 		int xCoorDrop = map.locationOf(actor).x();
 		int yCoorDrop = map.locationOf(actor).y();
 		
-		int[] posMove = {-1,0,1};
+		int[] posMove = {-1, 0, 1};
 		
 		xCoorDrop += posMove[successRate.nextInt(3)];
 		yCoorDrop += posMove[successRate.nextInt(3)];
 		
 		map.at(xCoorDrop, yCoorDrop).addItem(item);
-		
-		
+		return menuDescription(actor);
 	}
 	
-
-	@Override
-	public String execute(Actor actor, GameMap map) {
-		
-		if (actor instanceof Zombie) {
-			setItemRandom(map, actor);
-		}
-		
-		
+	public String setCurrent(Actor actor, GameMap map) {
+		map.locationOf(actor).addItem(item);
 		return menuDescription(actor);
 	}
 	

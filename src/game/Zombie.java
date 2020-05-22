@@ -38,7 +38,7 @@ public class Zombie extends ZombieActor {
 	// A boolean that checks if a Zombie moved last turn
 	private boolean moved = true;
 	// An array list that holds all the available limbs the Zombie has
-	private ArrayList<WeaponItem> availableLimbs = new ArrayList<>(4);
+	private ArrayList<WeaponItem> availableLimbs = new ArrayList<WeaponItem>(4);
 	// Holds all behaviours the Zombie has
 	private Behaviour[] behaviours = {
 			new AttackBehaviour(ZombieCapability.ALIVE),
@@ -164,4 +164,3 @@ public class Zombie extends ZombieActor {
 		return new DoNothingAction();	
 	}
 }
-

@@ -14,7 +14,7 @@ import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Menu;
 import edu.monash.fit2099.engine.WeaponItem;
 
-/**
+/** 
  * Class representing the Player.
  */
 public class Player extends Human {
@@ -34,6 +34,15 @@ public class Player extends Human {
 	
 
 	@Override
+	/**
+	 * Select and return an action to perform on the current turn. (newly added eatAction, harvestAction, craftAction)
+	 *
+	 * @param actions    collection of possible Actions for this Actor
+	 * @param lastAction The Action this Actor took last turn. Can do interesting things in conjunction with Action.getNextAction()
+	 * @param map        the map containing the Actor
+	 * @param display    the I/O object to which messages may be written
+	 * @return the Action to be performed
+	 */
 	public Action playTurn(Actions actions, Action lastAction, GameMap map, Display display) {
 		// Handle multi-turn Actions
 		if (lastAction.getNextAction() != null)
