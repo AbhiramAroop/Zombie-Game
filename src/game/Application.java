@@ -77,8 +77,6 @@ public class Application {
 		gameMap.at(62, 12).addActor(new Zombie("Aaargh"));
 		gameMap.at(42, 16).setGround(new Crop());
 		gameMap.at(30, 12).addActor(new Farmer("James"));
-		gameMap.at(43, 16).addItem(new zombieArm());
-		gameMap.at(43, 17).addItem(new zombieLeg());
 		world.run();
 	}
 }

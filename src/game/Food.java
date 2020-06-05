@@ -1,11 +1,9 @@
 package game;
 
-import edu.monash.fit2099.engine.Item;
-
-public class Food extends Item{
+public class Food extends PortableItem{
 
 	public Food() {
-		super("Food",'f', true);
+		super("Food",'f');
 		
 	}
 

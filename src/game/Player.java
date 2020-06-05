@@ -39,25 +39,26 @@ public class Player extends Human {
 		if (lastAction.getNextAction() != null)
 			return lastAction.getNextAction();
 		
-		if (lastAction.getClass().getName() == "eatAction")
+		if (lastAction instanceof eatAction)
 			return lastAction;
 		
-		List<Item> inventory = getInventory();
+		List<Item> inventory = super.getInventory();
 		
-		for (int i = 0; i < inventory.size(); i++) {
-			if (inventory.get(i) instanceof Food && this.hitPoints < this.maxHitPoints) {
-				actions.add(new eatAction((Food) inventory.get(i)));
+		
+		for (Object item : inventory) {
+			if (item instanceof Food && this.hitPoints < this.maxHitPoints) {
+				actions.add(new eatAction((Food) item));
 				break;
 			}
-		}
-		
-	
-		
-		for (int i = 0; i < this.getInventory().size(); i++) {
-			if (this.getInventory().get(i) instanceof zombieArm || this.getInventory().get(i) instanceof zombieLeg)  {
-				actions.add(new craftAction((WeaponItem) this.getInventory().get(i)));
+			else if (item instanceof zombieArm || item instanceof zombieLeg) {
+				actions.add(new craftAction((WeaponItem) item));
 				break;
-				
+			}
+			else if (item instanceof Shotgun) {
+				actions.add(new ShotgunAction());
+			}
+			else if (item instanceof SniperRifle && ((SniperRifle) item).canExecute(this, map)) {
+				actions.add(new SniperAction(this, map));
 			}
 		}
 		
@@ -65,8 +66,6 @@ public class Player extends Human {
 		Collections.shuffle(exits);
 		
 		for (Exit e: exits) {
-			if (!(e.getDestination().getGround() instanceof Crop))
-				continue;
 			if (((Crop) e.getDestination().getGround()).isGrown()) {
 				actions.add(new harvestAction(e.getDestination()));
 			}
