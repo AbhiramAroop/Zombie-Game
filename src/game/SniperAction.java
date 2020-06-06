@@ -3,17 +3,16 @@ package game;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-
 import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.GameMap;
+import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Location;
-import javafx.util.Pair;
 
 public class SniperAction extends Action{
 	
 	private ArrayList<Actor> Targets = new ArrayList<>();
-	private int concentration = 0;
+	private int concentration;
 	private Scanner UserInput = new Scanner(System.in);
 	private Random successRate = new Random();
 	private String UserChoice;
@@ -30,6 +29,10 @@ public class SniperAction extends Action{
 	 * @param map The Game map itself
 	 */
 	SniperAction(Actor actor, GameMap map) {
+		for (Item item : actor.getInventory()) {
+			this.concentration = ((SniperRifle) item).getCon();
+			break;
+		}
 		Location currentPos = map.locationOf(actor);
 		int x = currentPos.x();
 		int y = currentPos.y();
@@ -38,7 +41,7 @@ public class SniperAction extends Action{
 		for (int bound1 = 0 ; bound1 <= 8 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 8 ; bound2 ++) {
 				if (inRange(x - 4 + bound1, y + 4 + bound2, map)) {
-					if (map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Zombie) {
+					if (!(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Human)) {
 						Targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
 					}
 				}
@@ -46,20 +49,6 @@ public class SniperAction extends Action{
 		}	
 	}
 	
-	/**
-	 * Checks if the current coordinates are within the range of the Game map
-	 * 
-	 * @param x The x coordinate
-	 * @param y The y coordinate
-	 * @param map The Game map
-	 * @return true if the coordinate are within the Game map range. False otherwise.
-	 */
-	private boolean inRange(int x, int y, GameMap map) {
-		return (map.getXRange().min() <= x && 
-				x <= map.getXRange().max() && 
-				map.getYRange().min() <= y && 
-				y<= map.getYRange().max()); 
-	}
 	
 	@Override
 	/**
@@ -72,35 +61,48 @@ public class SniperAction extends Action{
 	 */
 	public String execute(Actor actor, GameMap map) {
 		System.out.println("Concentration level: " + concentration + "/2");
-		
 		if (TargetIdx == -1) {
-			lockOn(actor, map);
+			TargetChoice = "unselected";
 		}
-		
 		System.out.println("Current target: " + TargetChoice + TargetLoc);
-		System.out.println("Press 0 to choose different target");
-		System.out.println("Press 1 to shoot");
-		boolean canAim = false;
-		if (concentration < 2) {
-			canAim = true;
-			System.out.println("Press 2 to aim");
-		}
-		UserChoice = UserInput.nextLine();
 		
-		boolean validMove = false;
-		while (!validMove) {
+		while (true) {
+			System.out.println("Press 0 to select/change target");
+			if (canAim()) {
+				System.out.println("Press 1 to aim");
+			}
+			if (canShoot(actor)) {
+				System.out.println("Press 2 to shoot");
+			}
+
+			UserChoice = UserInput.nextLine();
 			if (UserChoice.equals("0")) {
-				resetCon();
+				concentration = 0;
 				lockOn(actor, map);
 				System.out.println("Target is now: " + TargetChoice + TargetLoc);
+				if (canAim()) {
+					System.out.println("Press 1 to aim");
+					for (Item item : actor.getInventory()) {
+						((SniperRifle) item).setCon(concentration + 1);
+						break;
+					}
+				}
+				if (canShoot(actor))  {
+					System.out.println("Press 2 to shoot");
+					for (Item item : actor.getInventory()) {
+						((SniperRifle) item).reduceAmmo();
+						break;
+					}
+				}
 			}
-			else if (UserChoice.equals("1")) {
-				shoot(TargetIdx, map);
-				validMove = true;
-			}
-			else if (UserInput.nextLine().equals("2") && canAim){
+			else if (UserInput.nextLine().equals("1") && canAim()) {
 				aim();
-				validMove = true;
+				break;
+			}
+			else if (UserChoice.equals("2") && canShoot(actor)) {
+				shoot(TargetIdx, map);
+				
+				break;
 			}
 			else {
 				System.out.println("Invalid move. Choose a valid move: ");
@@ -174,11 +176,33 @@ public class SniperAction extends Action{
 	}
 	
 	/**
-	 * Reset the concentration level.
+	 * Checks if the current coordinates are within the range of the Game map
+	 * 
+	 * @param x The x coordinate
+	 * @param y The y coordinate
+	 * @param map The Game map
+	 * @return true if the coordinate are within the Game map range. False otherwise.
 	 */
-	public void resetCon() {
-		concentration = 0;
+	private boolean inRange(int x, int y, GameMap map) {
+		return (map.getXRange().min() <= x && 
+				x <= map.getXRange().max() && 
+				map.getYRange().min() <= y && 
+				y<= map.getYRange().max()); 
 	}
+	
+	private boolean canAim() {
+		return concentration < 2;
+	}
+	
+	private boolean canShoot(Actor actor) {
+		for (Item item : actor.getInventory()) {
+			if (((SniperRifle) item).hasAmmo() && TargetIdx != -1) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Converts a given coordinates into plain text. 
@@ -203,7 +227,7 @@ public class SniperAction extends Action{
 		else {
 			yStr = y + " units up ";
 		}
-		return " at " + xStr + ", " + yStr;
+		return " at " + xStr + ", " + yStr + ".";
 	}
 	
 	@Override
@@ -217,7 +241,7 @@ public class SniperAction extends Action{
 		if (UserChoice.equals("1")) {
 			return actor.toString() + " aims.";
 		}
-		return actor.toString() + "shoots " + TargetChoice + " at " + TargetLoc;
+		return actor.toString() + "shoots " + TargetChoice + " at " + TargetLoc + ".";
 	}
 
 }

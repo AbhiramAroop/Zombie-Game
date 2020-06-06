@@ -7,12 +7,13 @@ import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Location;
 
 public class SniperRifle extends RangedWeapon{
+	private int concentration = 0;
 	
 	/**
 	 * Initializes a Sniper Rifle weapon
 	 */
 	public SniperRifle() {
-		super("Sniper rifle", 'R');
+		super("Sniper rifle", 'R', 12);
 	}
 	
 	/**
@@ -48,13 +49,21 @@ public class SniperRifle extends RangedWeapon{
 		for (int bound1 = 0 ; bound1 <= 8 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 8 ; bound2 ++) {
 				if (inRange(x - 4 + bound1, y + 4 + bound2, map)) {
-					if (map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Zombie) {
+					if (!(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Human)) {
 						Targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
 					}
 				}
 			}
 		}	
-		return Targets.size() != 0;
+		return Targets.size() != 0 && super.hasAmmo();
+	}
+	
+	public void setCon(int x) {
+		concentration = x;
+	}
+	
+	public int getCon() {
+		return new Integer(concentration);
 	}
 
 }

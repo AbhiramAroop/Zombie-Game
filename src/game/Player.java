@@ -35,6 +35,8 @@ public class Player extends Human {
 
 	@Override
 	public Action playTurn(Actions actions, Action lastAction, GameMap map, Display display) {
+		List<Item> inventory = super.getInventory();
+		
 		// Handle multi-turn Actions
 		if (lastAction.getNextAction() != null)
 			return lastAction.getNextAction();
@@ -42,10 +44,15 @@ public class Player extends Human {
 		if (lastAction instanceof eatAction)
 			return lastAction;
 		
-		List<Item> inventory = super.getInventory();
+		for (Item groundItem : map.locationOf(this).getItems()) {
+			if (groundItem instanceof Ammo) {
+				groundItem.getPickUpAction().execute(this, map);
+			}
+		}
 		
 		
 		for (Object item : inventory) {
+
 			if (item instanceof Food && this.hitPoints < this.maxHitPoints) {
 				actions.add(new eatAction((Food) item));
 				break;
@@ -54,11 +61,19 @@ public class Player extends Human {
 				actions.add(new craftAction((WeaponItem) item));
 				break;
 			}
-			else if (item instanceof Shotgun) {
+			else if (item instanceof Shotgun && ((Shotgun) item).canExecute()) {
 				actions.add(new ShotgunAction());
+				break;
 			}
 			else if (item instanceof SniperRifle && ((SniperRifle) item).canExecute(this, map)) {
 				actions.add(new SniperAction(this, map));
+				break;
+			}
+			else if (item instanceof Ammo) {
+				for (Object item2 : inventory) {
+					((RangedWeapon) item2).addAmmo();
+					break;
+				}
 			}
 		}
 		

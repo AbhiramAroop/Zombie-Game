@@ -2,10 +2,10 @@ package game;
 
 import java.util.Random;
 import java.util.Scanner;
-
 import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.GameMap;
+import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Location;
 
 public class ShotgunAction extends Action{
@@ -13,8 +13,8 @@ public class ShotgunAction extends Action{
 	private String[] ShootDir = {"N: North", "E: East", "S: South", "W: West",
 			"NE: North-East","NW: North-West", "SE: South-East", "SW: South-West"};
 	private Scanner UserInput = new Scanner(System.in);
-	private String ShotDir = "";
 	private Random successRate = new Random();
+	private String Targets = "\r\n";
 	
 	/**
 	 * Allows the actor to shoot either North or South with the shotgun.
@@ -35,13 +35,15 @@ public class ShotgunAction extends Action{
 				if (inRange(i, y+z*bound, map)) {
 					if (map.getActorAt(map.at(i, y + z*bound)) instanceof Zombie) {
 						if (successRate.nextInt(4) != 0) {
-							map.getActorAt(map.at(x, y)).hurt(30);	
+							map.getActorAt(map.at(x, y)).hurt(30);
+							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+	
 	
 	/**
 	 * Allows the actor to shoot either East or West with the shotgun.
@@ -63,12 +65,14 @@ public class ShotgunAction extends Action{
 					if (map.getActorAt(map.at(x + z*bound, i)) instanceof Zombie) {
 						if (successRate.nextInt(4) != 0) {
 							map.getActorAt(map.at(x, y)).hurt(30);	
+							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+
 	
 	/**
 	 * Allows the actor to shoot either North-West or South-East with the shotgun.
@@ -91,12 +95,14 @@ public class ShotgunAction extends Action{
 					if (map.getActorAt(map.at(x - z + bound1, y + z + bound2)) instanceof Zombie) {
 						if (successRate.nextInt(4) != 0) {
 							map.getActorAt(map.at(x, y)).hurt(30);	
+							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+
 	
 	/**
 	 * Allows the actor to shoot either North-East or South-West with the shotgun.
@@ -119,12 +125,14 @@ public class ShotgunAction extends Action{
 					if (map.getActorAt(map.at(x - z + bound1, y - z + bound2)) instanceof Zombie) {
 						if (successRate.nextInt(4) != 0) {
 							map.getActorAt(map.at(x, y)).hurt(30);	
+							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
+	
 	
 	/**
 	 * Checks if the current coordinates are within the range of the Game map
@@ -155,59 +163,63 @@ public class ShotgunAction extends Action{
 		for (String direction : this.ShootDir) {
 			System.out.println(direction);
 		}	
-		System.out.println("Select shooting direction: ");
-		String shoot = UserInput.nextLine();
+
 		Location currentPos = map.locationOf(actor);
 		
+		boolean reducedAmmo = false;
 		boolean validMove = false;
 		while (!validMove) {
+			System.out.println("Select shooting direction: ");
+			String shoot = UserInput.nextLine();
 			if (shoot.equals("N")) {
-				ShotDir = "North";
 				shootNtoS(currentPos.x(), currentPos.y(), map, "N");
 				validMove = true;
 			}
 			else if (shoot.equals("S")) {
-				ShotDir = "South";
 				shootNtoS(currentPos.x(), currentPos.y(), map, "S");
 				validMove = true;
 			}
 			else if (shoot.equals("E")) {
-				ShotDir = "East";
 				shootEtoW(currentPos.x(), currentPos.y(), map, "E");
 				validMove = true;
 			}
 			else if (shoot.equals("W")) {
-				ShotDir = "West";
 				shootEtoW(currentPos.x(), currentPos.y(), map, "W");
 				validMove = true;
 			}
 			else if (shoot.equals("NW")) {
-				ShotDir = "North West";
 				shootNWtoSE(currentPos.x(), currentPos.y(), map, "NW");
 				validMove = true;
 			}
 			else if (shoot.equals("SE")) {
-				ShotDir = "South East";
 				shootNWtoSE(currentPos.x(), currentPos.y(), map, "SE");
 				validMove = true;
 			}
 			else if (shoot.equals("NE")) {
-				ShotDir = "North East";
 				shootNEtoSW(currentPos.x(), currentPos.y(), map, "NE");
 				validMove = true;
 			}
 			else if (shoot.equals("NW")) {
-				ShotDir = "South West";
 				shootNEtoSW(currentPos.x(), currentPos.y(), map, "SW");
 				validMove = true;
 			}
 			else {
 				System.out.println("Invalid move. Choose a valid move: ");
 			}
+			if (!(reducedAmmo)) {
+				reduceAmmo(actor);
+				reducedAmmo = true;
+			}
 		}
 		return menuDescription(actor);
 	}
 	
+	private void reduceAmmo(Actor actor) {
+		for (Item item : actor.getInventory()) {
+			((Shotgun) item).reduceAmmo();
+			break;
+		}
+	}
 	
 	@Override
 	/**
@@ -217,7 +229,7 @@ public class ShotgunAction extends Action{
 	 * @return a description of what the actor did.
 	 */
 	public String menuDescription(Actor actor) {
-		return actor.toString() + " shoots " + ShotDir;
+		return actor.toString() + " shoots " + Targets;
 	}
 
 }
