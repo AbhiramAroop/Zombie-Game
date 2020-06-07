@@ -6,15 +6,20 @@ import edu.monash.fit2099.engine.Action;
 import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Item;
-import edu.monash.fit2099.engine.Location;
 
+/**
+ * An action that allows the player to use the shotgun.
+ * 
+ * @author Immanuel Andrew Christabel
+ */
 public class ShotgunAction extends Action{
 	
-	private String[] ShootDir = {"N: North", "E: East", "S: South", "W: West",
+	private String[] shootDir = {"N: North", "E: East", "S: South", "W: West",
 			"NE: North-East","NW: North-West", "SE: South-East", "SW: South-West"};
-	private Scanner UserInput = new Scanner(System.in);
+	private Scanner userInput = new Scanner(System.in);
 	private Random successRate = new Random();
-	private String Targets = "\r\n";
+	private String shotAlive = "";
+	private String shotDead = "";
 	
 	/**
 	 * Allows the actor to shoot either North or South with the shotgun.
@@ -24,25 +29,26 @@ public class ShotgunAction extends Action{
 	 * @param map The Game map.
 	 * @param dir The direction the actor is shooting (i.e. N or S).
 	 */
-	private void shootNtoS(Integer x, Integer y, GameMap map, String dir) {
+	private void shootNtoS(Actor player, GameMap map, String dir) {
+		int x = map.locationOf(player).x();
+		int y = map.locationOf(player).y();
+		
 		int z = 1;
 		
-		if (dir.equals("S")) {
+		if (dir.equals("N")) {
 			z = -1;
 		}
 		for (int bound = 1 ; bound <= 3 ; bound ++) {
 			for (int i = x - bound ; i <= x + bound ; i++) {
 				if (inRange(i, y+z*bound, map)) {
-					if (map.getActorAt(map.at(i, y + z*bound)) instanceof Zombie) {
-						if (successRate.nextInt(4) != 0) {
-							map.getActorAt(map.at(x, y)).hurt(30);
-							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
-							}
-						}
+					Actor target = map.getActorAt(map.at(i, y + z*bound));
+					if (target instanceof Zombie) {
+						shoot(target, player, map);
 					}
 				}
 			}
 		}
+	}
 	
 	
 	/**
@@ -53,7 +59,10 @@ public class ShotgunAction extends Action{
 	 * @param map The Game map.
 	 * @param dir The direction the actor is shooting (i.e. E or W).
 	 */
-	private void shootEtoW(Integer x, Integer y, GameMap map, String dir) {
+	private void shootEtoW(Actor player, GameMap map, String dir) {
+		int x = map.locationOf(player).x();
+		int y = map.locationOf(player).y();
+		
 		int z = 1;
 		
 		if (dir.equals("W")) {
@@ -62,17 +71,14 @@ public class ShotgunAction extends Action{
 		for (int bound = 1 ; bound <= 3 ; bound ++) {
 			for (int i = y - bound ; i <= y + bound ; i++) {
 				if (inRange(x + z*bound, i, map)) {
-					if (map.getActorAt(map.at(x + z*bound, i)) instanceof Zombie) {
-						if (successRate.nextInt(4) != 0) {
-							map.getActorAt(map.at(x, y)).hurt(30);	
-							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
-							}
-						}
+					Actor target = map.getActorAt(map.at(x + z*bound, i));
+					if (target instanceof Zombie) {
+						shoot(player, target, map);
 					}
 				}
 			}
 		}
-
+	}
 	
 	/**
 	 * Allows the actor to shoot either North-West or South-East with the shotgun.
@@ -82,27 +88,27 @@ public class ShotgunAction extends Action{
 	 * @param map The Game map.
 	 * @param dir The direction the actor is shooting (i.e. NW or SE).
 	 */
-	private void shootNWtoSE(Integer x, Integer y, GameMap map, String dir) {
+	private void shootNWtoSE(Actor player, GameMap map, String dir) {
+		int x = map.locationOf(player).x();
+		int y = map.locationOf(player).y();
+		
 		int z = 0;
 		
-		if (dir.equals("SE")) {
+		if (dir.equals("NW")) {
 			z = 3;
 		}
 		
 		for (int bound1 = 0 ; bound1 <= 3 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 >= -3 ; bound2 -= 1) {
-				if (inRange(x - z + bound1, y + z + bound2, map)) {
-					if (map.getActorAt(map.at(x - z + bound1, y + z + bound2)) instanceof Zombie) {
-						if (successRate.nextInt(4) != 0) {
-							map.getActorAt(map.at(x, y)).hurt(30);	
-							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
-							}
-						}
+				if (inRange(x - z + bound1, y - z + bound2, map)) {
+					Actor target = map.getActorAt(map.at(x - z + bound1, y - z + bound2));
+					if (target instanceof Zombie) {
+						shoot(player, target, map);
 					}
 				}
 			}
 		}
-
+	}
 	
 	/**
 	 * Allows the actor to shoot either North-East or South-West with the shotgun.
@@ -112,7 +118,10 @@ public class ShotgunAction extends Action{
 	 * @param map The Game map.
 	 * @param dir The direction the actor is shooting (i.e. NE or SW).
 	 */
-	private void shootNEtoSW(Integer x, Integer y, GameMap map, String dir) {
+	private void shootNEtoSW(Actor player, GameMap map, String dir) {
+		int x = map.locationOf(player).x();
+		int y = map.locationOf(player).y();
+		
 		int z = 0;
 		
 		if (dir.equals("SW")) {
@@ -121,18 +130,15 @@ public class ShotgunAction extends Action{
 		
 		for (int bound1 = 0 ; bound1 <= 3 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 3 ; bound2 ++) {
-				if (inRange(x - z + bound1, y - z + bound2, map)) {
-					if (map.getActorAt(map.at(x - z + bound1, y - z + bound2)) instanceof Zombie) {
-						if (successRate.nextInt(4) != 0) {
-							map.getActorAt(map.at(x, y)).hurt(30);	
-							Targets += map.getActorAt(map.at(x, y)).toString() + "\r\n" ;
-							}
-						}
+				if (inRange(x - z + bound1, y + z + bound2, map)) {
+					Actor target = map.getActorAt(map.at(x - z + bound1, y + z + bound2));
+					if (target instanceof Zombie) {
+						shoot(player, target, map);
 					}
 				}
 			}
 		}
-	
+	}
 	
 	/**
 	 * Checks if the current coordinates are within the range of the Game map
@@ -158,67 +164,123 @@ public class ShotgunAction extends Action{
 	 * @param map The Game map.
 	 * @return a description of what the actor did.
 	 */
-	public String execute(Actor actor, GameMap map) {
-		System.out.println("Shoot direction options: ");
-		for (String direction : this.ShootDir) {
-			System.out.println(direction);
-		}	
-
-		Location currentPos = map.locationOf(actor);
+	public String execute(Actor player, GameMap map) {
+		int ammo = 0;
+		for (Item item : player.getInventory()) {
+			if (item instanceof Shotgun) {
+				ammo = ((Shotgun) item).getAmmo();
+				break;
+			}
+		}
 		
-		boolean reducedAmmo = false;
-		boolean validMove = false;
-		while (!validMove) {
-			System.out.println("Select shooting direction: ");
-			String shoot = UserInput.nextLine();
-			if (shoot.equals("N")) {
-				shootNtoS(currentPos.x(), currentPos.y(), map, "N");
-				validMove = true;
+		while (true) {
+			System.out.println("");
+			System.out.println("Ammunition: " + ammo);
+			System.out.println("Shoot direction options: ");
+			for (String direction : shootDir) {
+				System.out.println(direction);
+			}	
+			String shootDir = userInput.next();
+			
+			if (shootDir.equals("N")) {
+				shootNtoS(player, map, "N");
+				break;
 			}
-			else if (shoot.equals("S")) {
-				shootNtoS(currentPos.x(), currentPos.y(), map, "S");
-				validMove = true;
+			else if (shootDir.equals("S")) {
+				shootNtoS(player, map, "S");
+				break;
 			}
-			else if (shoot.equals("E")) {
-				shootEtoW(currentPos.x(), currentPos.y(), map, "E");
-				validMove = true;
+			else if (shootDir.equals("E")) {
+				shootEtoW(player, map, "E");
+				break;
 			}
-			else if (shoot.equals("W")) {
-				shootEtoW(currentPos.x(), currentPos.y(), map, "W");
-				validMove = true;
+			else if (shootDir.equals("W")) {
+				shootEtoW(player, map, "W");
+				break;
 			}
-			else if (shoot.equals("NW")) {
-				shootNWtoSE(currentPos.x(), currentPos.y(), map, "NW");
-				validMove = true;
+			else if (shootDir.equals("NW")) {
+				shootNWtoSE(player, map, "NW");
+				break;
 			}
-			else if (shoot.equals("SE")) {
-				shootNWtoSE(currentPos.x(), currentPos.y(), map, "SE");
-				validMove = true;
+			else if (shootDir.equals("SE")) {
+				shootNWtoSE(player, map, "SE");
+				break;
 			}
-			else if (shoot.equals("NE")) {
-				shootNEtoSW(currentPos.x(), currentPos.y(), map, "NE");
-				validMove = true;
+			else if (shootDir.equals("NE")) {
+				shootNEtoSW(player, map, "NE");
+				break;
 			}
-			else if (shoot.equals("NW")) {
-				shootNEtoSW(currentPos.x(), currentPos.y(), map, "SW");
-				validMove = true;
+			else if (shootDir.equals("SW")) {
+				shootNEtoSW(player, map, "SW");
+				break;
 			}
 			else {
 				System.out.println("Invalid move. Choose a valid move: ");
 			}
-			if (!(reducedAmmo)) {
-				reduceAmmo(actor);
-				reducedAmmo = true;
+		}
+		for (Item item : player.getInventory()) {
+			if (item instanceof Shotgun) {
+				((Shotgun) item).reduceAmmo();
+				break;
 			}
 		}
-		return menuDescription(actor);
+		return shotOutcome();
 	}
 	
-	private void reduceAmmo(Actor actor) {
-		for (Item item : actor.getInventory()) {
-			((Shotgun) item).reduceAmmo();
-			break;
+
+	/**
+	 * 75% chance to shoot a zombie for 30 damage.
+	 * 
+	 * @param player The player shooting.
+	 * @param target The zombie being shot.
+	 * @param map The game map.
+	 */
+	private void shoot(Actor player, Actor target, GameMap map) {
+		if (successRate.nextInt(4) != 0) {
+			target.hurt(30);
+			if (target.isConscious()) {
+				if (shotAlive.length() == 0) {
+					shotAlive = shotAlive.concat(target.toString());
+				}
+				else {
+					shotAlive = shotAlive.concat(", " + target.toString());
+				}
+			}
+			else {
+				if (shotDead.length() == 0) {
+					shotDead = target.toString();
+				}
+				else {
+					shotDead = shotDead.concat(", " + target.toString());
+				}
+				map.removeActor(target);
+			}
 		}
+		
+	}
+	
+	/**
+	 * Returns the outcome after a player has used the shotgun.
+	 * 
+	 * @return A string denoting all the zombies the player has killed/hurt.
+	 */
+	private String shotOutcome() {
+		if (shotAlive.length() > 0) {
+			shotAlive = "Player shot: " + shotAlive + " for 30 damage.";
+		}
+		if (shotDead.length() > 0) {
+			shotDead = "Player shot: " + shotDead + " dead.";
+		}
+		if (shotAlive.length() == 0 && shotDead.length() == 0) {
+			return "Player does not shoot any zombies.";
+		}
+		else if (shotAlive.length() == 0 && shotDead.length() > 0) {
+			return shotDead;
+		}
+		else if (shotAlive.length() > 0 && shotDead.length() == 0) {
+			return shotAlive;
+		}
+		return shotAlive + "\r\n" + shotDead;
 	}
 	
 	@Override
@@ -228,8 +290,8 @@ public class ShotgunAction extends Action{
 	 * @param actor The actor that's using the Shotgun.
 	 * @return a description of what the actor did.
 	 */
-	public String menuDescription(Actor actor) {
-		return actor.toString() + " shoots " + Targets;
+	public String menuDescription(Actor player) {
+		return player.toString() + " uses Shotgun";
 	}
 
 }

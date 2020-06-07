@@ -6,11 +6,19 @@ import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Location;
 
+/**
+ * A ranged weapon that can shoot a zombie up to 4 spaces away. It does more damage based on the
+ * player's concentration level.
+ * 
+ * @author Immanuel Andrew Christabel
+ *
+ */
 public class SniperRifle extends RangedWeapon{
 	private int concentration = 0;
-	
 	/**
-	 * Initializes a Sniper Rifle weapon
+	 * Initializes a sniper rifle weapon. A sniper rifle stats:
+	 * - 12 ammo capacity
+	 * - 4 x 4 area range where
 	 */
 	public SniperRifle() {
 		super("Sniper rifle", 'R', 12);
@@ -32,7 +40,7 @@ public class SniperRifle extends RangedWeapon{
 	}
 	
 	/**
-	 * Checks if the Sniper Rifle can be used at a specific turn (i.e. if there are any Zombies
+	 * Checks if the Sniper Rifle can be used this turn (i.e. if there are any Zombies
 	 * within the range of a 4x4 square with its center at the actor's current position).
 	 * 
 	 * @param actor The actor using the Sniper Rifle
@@ -48,20 +56,31 @@ public class SniperRifle extends RangedWeapon{
 		
 		for (int bound1 = 0 ; bound1 <= 8 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 8 ; bound2 ++) {
-				if (inRange(x - 4 + bound1, y + 4 + bound2, map)) {
-					if (!(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Human)) {
+				if (inRange(x - 4 + bound1, y - 4 + bound2, map)) {
+					if (map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Zombie) {
 						Targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
 					}
 				}
 			}
 		}	
-		return Targets.size() != 0 && super.hasAmmo();
+		return (Targets.size() != 0 && super.hasAmmo()) || this.concentration < 2;
 	}
 	
+	/**
+	 * Set the sniper rifle's concentration level.
+	 * 
+	 * @param x The sniper rifle's new concentration level.
+	 */
 	public void setCon(int x) {
+		assert (-1 < x && x < 3);
 		concentration = x;
 	}
 	
+	/**
+	 * Get the concentration level of the sniper rifle.
+	 * 
+	 * @return An integer of the concentration's current level.
+	 */
 	public int getCon() {
 		return new Integer(concentration);
 	}

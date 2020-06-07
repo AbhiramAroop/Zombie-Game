@@ -9,40 +9,50 @@ import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Item;
 import edu.monash.fit2099.engine.Location;
 
+/**
+ * An action that allows the player to use the sniper rifle.
+ * 
+ * @author Immanuel Andrew Christabel
+ *
+ */
 public class SniperAction extends Action{
 	
-	private ArrayList<Actor> Targets = new ArrayList<>();
+	private ArrayList<Actor> targets = new ArrayList<>();
 	private int concentration;
-	private Scanner UserInput = new Scanner(System.in);
+	private int ammo;
+	private Scanner userInput = new Scanner(System.in);
 	private Random successRate = new Random();
-	private String UserChoice;
-	private String TargetChoice;
-	private int TargetIdx = -1;
-	private String TargetLoc;
+	private String userChoice;	
+	private String targetName;
+	private int targetIdx = -1;
+	private String targetPos;
 	
 	/**
 	 * Initializes a Sniper action by finding all the nearby Zombies from the current actor's 
 	 * position. The Sniper action is only created if there are Zombies within the actor's 
 	 * range (i.e. a 4x4 square with its center being the actor's current position).
 	 * 
-	 * @param actor The actor that's using the Sniper (i.e. Player)
+	 * @param player The actor that's using the Sniper (i.e. Player)
 	 * @param map The Game map itself
 	 */
-	SniperAction(Actor actor, GameMap map) {
-		for (Item item : actor.getInventory()) {
-			this.concentration = ((SniperRifle) item).getCon();
-			break;
+	SniperAction(Actor player, GameMap map) {
+		for (Item item : player.getInventory()) {
+			if (item instanceof SniperRifle) {
+				this.concentration = ((SniperRifle) item).getCon();
+				this.ammo = ((SniperRifle) item).getAmmo();
+				break;
+			}
 		}
-		Location currentPos = map.locationOf(actor);
+		Location currentPos = map.locationOf(player);
 		int x = currentPos.x();
 		int y = currentPos.y();
 		
 		
 		for (int bound1 = 0 ; bound1 <= 8 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 8 ; bound2 ++) {
-				if (inRange(x - 4 + bound1, y + 4 + bound2, map)) {
-					if (!(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Human)) {
-						Targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
+				if (inRange(x - 4 + bound1, y - 4 + bound2, map)) {
+					if (map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Zombie) {
+						targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
 					}
 				}
 			}
@@ -59,89 +69,92 @@ public class SniperAction extends Action{
 	 * @param map The Game map.
 	 * @return a description of what the actor did.
 	 */
-	public String execute(Actor actor, GameMap map) {
-		System.out.println("Concentration level: " + concentration + "/2");
-		if (TargetIdx == -1) {
-			TargetChoice = "unselected";
-		}
-		System.out.println("Current target: " + TargetChoice + TargetLoc);
-		
+	public String execute(Actor player, GameMap map) {
+
 		while (true) {
-			System.out.println("Press 0 to select/change target");
+			boolean lockedOn = false;
+			System.out.println("");
+			System.out.println("Concentration level: " + concentration + "/2");
+			System.out.println("Ammunition: " + ammo);
+			if (targetIdx == -1) {
+				targetName = "unselected";
+			}
+			System.out.println("Current target: " + targetName + " at " + targetPos);
+			
+			if (canLockOn()) {
+				System.out.println("Press 0 to select/change target");
+			}
 			if (canAim()) {
 				System.out.println("Press 1 to aim");
 			}
-			if (canShoot(actor)) {
+			if (canShoot(player)) {
 				System.out.println("Press 2 to shoot");
 			}
-
-			UserChoice = UserInput.nextLine();
-			if (UserChoice.equals("0")) {
-				concentration = 0;
-				lockOn(actor, map);
-				System.out.println("Target is now: " + TargetChoice + TargetLoc);
-				if (canAim()) {
-					System.out.println("Press 1 to aim");
-					for (Item item : actor.getInventory()) {
+			userChoice = userInput.next();
+			
+			if (userChoice.equals("0") && canLockOn()) {
+				lockedOn = true;
+				lockOn(player, map);
+				System.out.println("Target is now: " + targetName + " at " + targetPos);
+			}
+			else if (userChoice.equals("1") && canAim()) {
+				for (Item item : player.getInventory()) {
+					if (item instanceof SniperRifle) {
 						((SniperRifle) item).setCon(concentration + 1);
 						break;
 					}
 				}
-				if (canShoot(actor))  {
-					System.out.println("Press 2 to shoot");
-					for (Item item : actor.getInventory()) {
-						((SniperRifle) item).reduceAmmo();
-						break;
-					}
-				}
+				return "Player aims";
 			}
-			else if (UserInput.nextLine().equals("1") && canAim()) {
-				aim();
-				break;
-			}
-			else if (UserChoice.equals("2") && canShoot(actor)) {
-				shoot(TargetIdx, map);
+			else if (userChoice.equals("2") && canShoot(player)) {
 				
-				break;
+				for (Item item : player.getInventory()) {
+					((SniperRifle) item).reduceAmmo();
+					((SniperRifle) item).setCon(0);
+					break;
+				}
+				return shoot(targetIdx, map);
 			}
-			else {
+			if (!lockedOn) {
 				System.out.println("Invalid move. Choose a valid move: ");
 			}
 		}
-		return menuDescription(actor);
 	}
 	
 	/**
 	 * Allows the actor to choose which Zombie it would like to shoot.
 	 * 
-	 * @param actor The actor shooting
+	 * @param player The actor shooting
 	 * @param map The Game map
 	 */
-	private void lockOn(Actor actor, GameMap map) {
+	private void lockOn(Actor player, GameMap map) {
+
 		System.out.println("Choose a target:");
-		for (int i=0; i<=Targets.size(); i++) {
-			Actor currTarget = Targets.get(i);
+		int xLocAct = map.locationOf(player).x();
+		int yLocAct = map.locationOf(player).y();
+		
+		for (int i=0; i<targets.size(); i++) {
+			Actor currTarget = targets.get(i);
 			int xCo = map.locationOf(currTarget).x();
 			int yCo = map.locationOf(currTarget).y();
-			System.out.println(i + ": " + currTarget.toString() + coordConvert(xCo, yCo));
+			System.out.println("Press " + i + ": " + currTarget.toString() + coordConvert(xCo - xLocAct, yCo - yLocAct));
 		}
 		
-		boolean state = false;
-		while (!state) {
-			TargetIdx = UserInput.nextInt();
-			if (TargetIdx <= Targets.size() && TargetIdx >= 0) {
-				state = true;
+
+		while (true) {
+			targetIdx = userInput.nextInt();
+			if (targetIdx < targets.size() && targetIdx >= 0) {
+				break;
 			}
 			System.out.println("Invalid target. Choose a valid target: ");
 		}
 		
-		TargetChoice = Targets.get(TargetIdx).toString();
-		int xLocTar = map.locationOf(Targets.get(TargetIdx)).x();
-		int yLocTar = map.locationOf(Targets.get(TargetIdx)).y();
-		int xLocAct = map.locationOf(actor).x();
-		int yLocAct = map.locationOf(actor).y();
+		int xLocTar = map.locationOf(targets.get(targetIdx)).x();
+		int yLocTar = map.locationOf(targets.get(targetIdx)).y();
 		
- 		TargetLoc = coordConvert(xLocTar - xLocAct, yLocTar - yLocAct);
+		targetName = targets.get(targetIdx).toString();
+ 		targetPos = coordConvert(xLocTar - xLocAct, yLocTar - yLocAct);
+ 		
 	}
 	
 	/**
@@ -150,30 +163,43 @@ public class SniperAction extends Action{
 	 * - 1/2 concentration: 90% hit rate, 60 dmg
 	 * - 2/2 concentration: 100% hit rate, instant kill
 	 * 
-	 * @param target The target being shoot
+	 * @param targetIdx The target being shoot
 	 */
-	private void shoot(int target, GameMap map) {
+	private String shoot(int targetIdx, GameMap map) {
+		Actor target = targets.get(targetIdx);
 		if (concentration == 0) {
 			if (successRate.nextInt(4) != 0) {
-				Targets.get(target).hurt(30);
+				target.hurt(30);
+				if (target.isConscious()) {
+					return "Player snipes " + targetName + " for 30 damage";
+				}
+				else {
+					return "Player snipes " + targetName + " dead";
+				}
 			}
+			
 		}
-		else if (concentration == 1 ) {
+		else if (this.concentration == 1) {
 			if (successRate.nextInt(10) != 0) {
-				Targets.get(target).hurt(60);
+				targets.get(targetIdx).hurt(60);
+				if (target.isConscious()) {
+					return "Player snipes " + targetName + " for 60 damage";
+				}
+				else {
+					return "Player snipes " + targetName + " dead";
+				}
 			}
 		}
 		else {
-			map.removeActor(Targets.get(target));
+			map.removeActor(target);
+			return "Player snipes " + targetName + " dead";
 		}
+		return null;
 	}
 	
 	/**
 	 * Increase the actor's concentration level by 1. 
 	 */
-	private void aim() {
-		concentration = Math.min(concentration + 1, 2);
-	}
 	
 	/**
 	 * Checks if the current coordinates are within the range of the Game map
@@ -190,19 +216,38 @@ public class SniperAction extends Action{
 				y<= map.getYRange().max()); 
 	}
 	
+	/**
+	 * Checks it an actor can aim.
+	 * 
+	 * @return boolean describing the actor's ability to aim
+	 */
 	private boolean canAim() {
 		return concentration < 2;
 	}
 	
-	private boolean canShoot(Actor actor) {
-		for (Item item : actor.getInventory()) {
-			if (((SniperRifle) item).hasAmmo() && TargetIdx != -1) {
-				return true;
+	/**
+	 * Checks it an actor can shoot.
+	 * 
+	 * @param player The actor shooting
+	 * @return Boolean describing the actor's ability to shoot
+	 */
+	private boolean canShoot(Actor player) {
+		for (Item item : player.getInventory()) {
+			if (item instanceof SniperRifle) {
+				return (((SniperRifle) item).hasAmmo() && targetIdx != -1);
 			}
 		}
 		return false;
 	}
 	
+	/**
+	 * Checks if an actor can choose a target.
+	 * 
+	 * @return Boolean describing the actor's ability to choose a target.
+	 */
+	private boolean canLockOn() {
+		return this.targets.size() != 0;
+	}
 	
 	/**
 	 * Converts a given coordinates into plain text. 
@@ -216,18 +261,18 @@ public class SniperAction extends Action{
 		String xStr = "";
 		String yStr = "";
 		if (x < 0) {
-			xStr = x + " units left ";
+			xStr = Math.abs(x) + " units left ";
 		}
 		else {
 			xStr = x + " units right ";
 		}
-		if (y < 0) {
+		if (y > 0) {
 			yStr = y + " units down ";
 		}
 		else {
-			yStr = y + " units up ";
+			yStr = Math.abs(y) + " units up ";
 		}
-		return " at " + xStr + ", " + yStr + ".";
+		return xStr + ", " + yStr;
 	}
 	
 	@Override
@@ -237,11 +282,8 @@ public class SniperAction extends Action{
 	 * @param actor The actor that's using the SniperRifle
 	 * @return a description of what the actor did (either shoot or aim).
 	 */
-	public String menuDescription(Actor actor) {
-		if (UserChoice.equals("1")) {
-			return actor.toString() + " aims.";
-		}
-		return actor.toString() + "shoots " + TargetChoice + " at " + TargetLoc + ".";
+	public String menuDescription(Actor player) {
+		return player.toString() + "uses Sniper Rifle";
 	}
 
 }

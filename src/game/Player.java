@@ -44,35 +44,31 @@ public class Player extends Human {
 		if (lastAction instanceof eatAction)
 			return lastAction;
 		
-		for (Item groundItem : map.locationOf(this).getItems()) {
-			if (groundItem instanceof Ammo) {
-				groundItem.getPickUpAction().execute(this, map);
-			}
-		}
-		
-		
-		for (Object item : inventory) {
+		for (Item item : inventory) {
 
 			if (item instanceof Food && this.hitPoints < this.maxHitPoints) {
 				actions.add(new eatAction((Food) item));
-				break;
 			}
 			else if (item instanceof zombieArm || item instanceof zombieLeg) {
 				actions.add(new craftAction((WeaponItem) item));
-				break;
 			}
 			else if (item instanceof Shotgun && ((Shotgun) item).canExecute()) {
 				actions.add(new ShotgunAction());
-				break;
 			}
 			else if (item instanceof SniperRifle && ((SniperRifle) item).canExecute(this, map)) {
 				actions.add(new SniperAction(this, map));
-				break;
 			}
 			else if (item instanceof Ammo) {
-				for (Object item2 : inventory) {
-					((RangedWeapon) item2).addAmmo();
-					break;
+				boolean hasGun = false;
+				for (Item item2 : inventory) {
+					if (item2 instanceof RangedWeapon) {
+						hasGun = true;
+						break;
+					}
+				}
+				if (hasGun) {
+					actions.add(new ReloadAction());
+					
 				}
 			}
 		}
@@ -81,8 +77,10 @@ public class Player extends Human {
 		Collections.shuffle(exits);
 		
 		for (Exit e: exits) {
-			if (((Crop) e.getDestination().getGround()).isGrown()) {
-				actions.add(new harvestAction(e.getDestination()));
+			if (e.getDestination().getGround() instanceof Crop) {
+				if (((Crop) e.getDestination().getGround()).isGrown()) {
+					actions.add(new harvestAction(e.getDestination()));
+				}
 			}
 		}
 		

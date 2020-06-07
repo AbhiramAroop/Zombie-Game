@@ -1,20 +1,16 @@
 package game;
 
 import edu.monash.fit2099.engine.Action;
+
 import edu.monash.fit2099.engine.Actions;
-import edu.monash.fit2099.engine.Actor;
 import edu.monash.fit2099.engine.Display;
 import edu.monash.fit2099.engine.DoNothingAction;
 import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.IntrinsicWeapon;
 import edu.monash.fit2099.engine.Item;
-import edu.monash.fit2099.engine.Location;
 import edu.monash.fit2099.engine.MoveActorAction;
 import edu.monash.fit2099.engine.PickUpItemAction;
-import edu.monash.fit2099.engine.Weapon;
 import edu.monash.fit2099.engine.WeaponItem;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -83,7 +79,7 @@ public class Zombie extends ZombieActor {
 	private void loseLimb(GameMap map) {
 		int availableLimbsSize = this.availableLimbs.size();
 		if (availableLimbsSize > 0) {
-			Integer lostLimbIdx = successRate.nextInt(availableLimbsSize);
+			int lostLimbIdx = successRate.nextInt(availableLimbsSize);
 			WeaponItem lostLimb = this.availableLimbs.get(lostLimbIdx);
 			this.availableLimbs.remove(lostLimbIdx);
 			
