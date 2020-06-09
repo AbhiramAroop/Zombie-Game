@@ -53,15 +53,16 @@ public class setItemAction extends Action{
 	 * @param actor: the actor setting the item.
 	 * @param map: the game map.
 	 * 
-	 * @return: the description of what item the actor set.
+	 * @return String the description of what item the actor set.
 	 */
 	public String setCurrent(Actor actor, GameMap map) {
 		map.locationOf(actor).addItem(item);
 		return menuDescription(actor);
 	}
 	
+	@Override
 	/**
-	 * @Override
+	 * 
 	 * A description of what the actor sets down
 	 * 
 	 * @param actor: the actor setting the item.

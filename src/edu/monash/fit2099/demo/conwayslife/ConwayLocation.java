@@ -2,6 +2,7 @@ package edu.monash.fit2099.demo.conwayslife;
 
 import edu.monash.fit2099.engine.GameMap;
 import edu.monash.fit2099.engine.Location;
+import game.Floor;
 
 public class ConwayLocation extends Location {
 

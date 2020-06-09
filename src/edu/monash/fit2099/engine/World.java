@@ -76,8 +76,9 @@ public class World {
 
 			// Process all the actors.
 			for (Actor actor : actorLocations) {
-				if (stillRunning())
+				if (stillRunning()) {
 					processActorTurn(actor);
+				}
 			}
 
 			// Tick over all the maps. For the map stuff.
