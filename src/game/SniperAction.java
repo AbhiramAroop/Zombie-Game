@@ -174,6 +174,7 @@ public class SniperAction extends Action{
 					return "Player snipes " + targetName + " for 40 damage";
 				}
 				else {
+					map.removeActor(target);
 					return "Player snipes " + targetName + " dead";
 				}
 			}
@@ -186,6 +187,7 @@ public class SniperAction extends Action{
 					return "Player snipes " + targetName + " for 80 damage";
 				}
 				else {
+					map.removeActor(target);
 					return "Player snipes " + targetName + " dead";
 				}
 			}
