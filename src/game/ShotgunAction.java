@@ -42,7 +42,7 @@ public class ShotgunAction extends Action{
 			for (int i = x - bound ; i <= x + bound ; i++) {
 				if (inRange(i, y+z*bound, map)) {
 					Actor target = map.getActorAt(map.at(i, y + z*bound));
-					if (target instanceof Zombie) {
+					if (target instanceof Zombie || target instanceof MamboMarie) {
 						shoot(target, player, map);
 					}
 				}
@@ -72,7 +72,7 @@ public class ShotgunAction extends Action{
 			for (int i = y - bound ; i <= y + bound ; i++) {
 				if (inRange(x + z*bound, i, map)) {
 					Actor target = map.getActorAt(map.at(x + z*bound, i));
-					if (target instanceof Zombie) {
+					if (target instanceof Zombie || target instanceof MamboMarie) {
 						shoot(player, target, map);
 					}
 				}
@@ -102,7 +102,7 @@ public class ShotgunAction extends Action{
 			for (int bound2 = 0 ; bound2 >= -3 ; bound2 -= 1) {
 				if (inRange(x - z + bound1, y - z + bound2, map)) {
 					Actor target = map.getActorAt(map.at(x - z + bound1, y - z + bound2));
-					if (target instanceof Zombie) {
+					if (target instanceof Zombie || target instanceof MamboMarie) {
 						shoot(player, target, map);
 					}
 				}
@@ -132,7 +132,7 @@ public class ShotgunAction extends Action{
 			for (int bound2 = 0 ; bound2 <= 3 ; bound2 ++) {
 				if (inRange(x - z + bound1, y + z + bound2, map)) {
 					Actor target = map.getActorAt(map.at(x - z + bound1, y + z + bound2));
-					if (target instanceof Zombie) {
+					if (target instanceof Zombie || target instanceof MamboMarie) {
 						shoot(player, target, map);
 					}
 				}
@@ -237,7 +237,7 @@ public class ShotgunAction extends Action{
 	 */
 	private void shoot(Actor player, Actor target, GameMap map) {
 		if (successRate.nextInt(4) != 0) {
-			target.hurt(30);
+			target.hurt(35);
 			if (target.isConscious()) {
 				if (shotAlive.length() == 0) {
 					shotAlive = shotAlive.concat(target.toString());
@@ -266,7 +266,7 @@ public class ShotgunAction extends Action{
 	 */
 	private String shotOutcome() {
 		if (shotAlive.length() > 0) {
-			shotAlive = "Player shot: " + shotAlive + " for 30 damage.";
+			shotAlive = "Player shot: " + shotAlive + " for 35 damage.";
 		}
 		if (shotDead.length() > 0) {
 			shotDead = "Player shot: " + shotDead + " dead.";

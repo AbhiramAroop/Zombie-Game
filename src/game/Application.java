@@ -55,15 +55,8 @@ public class Application {
 	    // Place some random humans
 		String[] humans = {"Carlton", "May", "Vicente", "Andrea", "Wendy",
 				"Elina", "Winter", "Clem", "Jacob", "Jaquelyn"};
-		int x, y;
-		for (String name : humans) {
-			do {
-				x = (int) Math.floor(Math.random() * 20.0 + 30.0);
-				y = (int) Math.floor(Math.random() * 7.0 + 5.0);
-			} 
-			while (gameMap.at(x, y).containsAnActor());
-			gameMap.at(x,  y).addActor(new Human(name));	
-		}
+		
+		addHumans(gameMap, humans);
 		
 		// place a simple weapon
 		gameMap.at(74, 20).addItem(new Plank());
@@ -81,8 +74,27 @@ public class Application {
 		GameMap town = addTown();
 		world.addGameMap(town);
 		
+		String[] humans_2 = {"Boyd", "Cian", "Pedro", "Connar", "Nimra",
+				"Gemma", "Maude", "Calista", "Emre", "Sofia"};		
+		
+		addHumans(town, humans_2);
+		
+		town.at(30, 20).addActor(new Zombie("Grian"));
+		town.at(30,  18).addActor(new Zombie("Bo"));
+		town.at(10,  4).addActor(new Zombie("Urgh"));
+		town.at(50, 18).addActor(new Zombie("Mortal"));
+		town.at(1, 10).addActor(new Zombie("Gah"));
+		town.at(62, 12).addActor(new Zombie("Argh"));
+		town.at(30, 12).addActor(new Farmer("Jimmy"));
+		town.at(31, 14).addActor(new Farmer("John"));
+		
 		world.run();
 	}
+	
+	/**
+	 * This method adds a new town Map
+	 * @return map A gameMap representing the town map
+	 */
 	
 	public static GameMap addTown() {
 		
@@ -115,7 +127,7 @@ public class Application {
 		"+++++++++++++++++++++++++++++++++++++++.........................................",
 		"++++++++++++++++++++++++++++++++++++++++++++....................................");
 		GameMap map = new GameMap(groundFactory, townMap );
-		
+	
 		
 		// place a simple weapon
 		map.at(16,3).addItem(new SniperRifle());
@@ -123,8 +135,32 @@ public class Application {
 		map.at(15,7).addItem(new Ammo());
 		map.at(18,7).addItem(new Ammo());		
 		
+		
 		return map;
 		
 	}
+	/**
+	 * This method adds Humans to a given GameMap
+	 * 
+	 * @param map The map in which humans need to be added into
+	 * @param humans An Array of strings representing Human names
+	 */
+	
+	public static void addHumans(GameMap map, String[] humans) {
+		
+		int x, y;
+		for (String name : humans) {
+			do {
+				x = (int) Math.floor(Math.random() * 20.0 + 30.0);
+				y = (int) Math.floor(Math.random() * 7.0 + 5.0);
+			} 
+			while (map.at(x, y).containsAnActor());
+			map.at(x,  y).addActor(new Human(name));	
+		}
+		
+		
+		
+	}
+	
 	
 }

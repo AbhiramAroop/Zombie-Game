@@ -23,7 +23,7 @@ public class SniperAction extends Action{
 	private Scanner userInput = new Scanner(System.in);
 	private Random successRate = new Random();
 	private String userChoice;	
-	private String targetName;
+	private String targetName = "unselected";
 	private int targetIdx = -1;
 	private String targetPos;
 	
@@ -51,8 +51,9 @@ public class SniperAction extends Action{
 		for (int bound1 = 0 ; bound1 <= 8 ; bound1 ++) {
 			for (int bound2 = 0 ; bound2 <= 8 ; bound2 ++) {
 				if (inRange(x - 4 + bound1, y - 4 + bound2, map)) {
-					if (map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)) instanceof Zombie) {
-						targets.add(map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2)));
+					Actor target = map.getActorAt(map.at(x - 4 + bound1, y - 4 + bound2));
+					if (target instanceof Zombie || target instanceof MamboMarie) {
+						targets.add(target);
 					}
 				}
 			}
@@ -76,9 +77,6 @@ public class SniperAction extends Action{
 			System.out.println("");
 			System.out.println("Concentration level: " + concentration + "/2");
 			System.out.println("Ammunition: " + ammo);
-			if (targetIdx == -1) {
-				targetName = "unselected";
-			}
 			System.out.println("Current target: " + targetName + " at " + targetPos);
 			
 			if (canLockOn()) {
@@ -109,9 +107,11 @@ public class SniperAction extends Action{
 			else if (userChoice.equals("2") && canShoot(player)) {
 				
 				for (Item item : player.getInventory()) {
-					((SniperRifle) item).reduceAmmo();
-					((SniperRifle) item).setCon(0);
-					break;
+					if (item instanceof SniperRifle) {
+						((SniperRifle) item).reduceAmmo();
+						((SniperRifle) item).setCon(0);
+						break;
+					}
 				}
 				return shoot(targetIdx, map);
 			}
@@ -169,9 +169,9 @@ public class SniperAction extends Action{
 		Actor target = targets.get(targetIdx);
 		if (concentration == 0) {
 			if (successRate.nextInt(4) != 0) {
-				target.hurt(30);
+				target.hurt(40);
 				if (target.isConscious()) {
-					return "Player snipes " + targetName + " for 30 damage";
+					return "Player snipes " + targetName + " for 40 damage";
 				}
 				else {
 					return "Player snipes " + targetName + " dead";
@@ -181,9 +181,9 @@ public class SniperAction extends Action{
 		}
 		else if (this.concentration == 1) {
 			if (successRate.nextInt(10) != 0) {
-				targets.get(targetIdx).hurt(60);
+				targets.get(targetIdx).hurt(80);
 				if (target.isConscious()) {
-					return "Player snipes " + targetName + " for 60 damage";
+					return "Player snipes " + targetName + " for 80 damage";
 				}
 				else {
 					return "Player snipes " + targetName + " dead";
@@ -283,7 +283,7 @@ public class SniperAction extends Action{
 	 * @return a description of what the actor did (either shoot or aim).
 	 */
 	public String menuDescription(Actor player) {
-		return player.toString() + "uses Sniper Rifle";
+		return player.toString() + " uses Sniper Rifle";
 	}
 
 }

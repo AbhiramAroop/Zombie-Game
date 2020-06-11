@@ -20,18 +20,15 @@ public class summoningAction extends Action{
 	 * @param map The GameMap of MamboMarie
 	 * @return true once a zombie is added
 	 */
-	public boolean addZombie(GameMap map) {
+	public boolean addZombie(GameMap map, Actor actor) {
 		
 		Random xVal = new Random();
 		Random yVal = new Random();
 		
-		int xRange = map.getXRange().max();
-		int yRange = map.getYRange().max();
+		int x = xVal.nextInt(10) + (map.locationOf(actor).x() - 4);
+		int y = yVal.nextInt(10)  + (map.locationOf(actor).y() - 4);
 		
-		int x = xVal.nextInt(xRange);
-		int y = yVal.nextInt(yRange);
-		
-		if (!(map.at(x, y).getGround() instanceof Fence) && (map.at(x, y).getActor() == null)) {
+		if (!(map.at(x, y).getGround() instanceof Fence) && (map.at(x, y).getActor() == null) && (map.getXRange().min() < x) &&  (x < map.getXRange().max()) && (map.getYRange().min() < y) && (y < map.getYRange().max()) )  {
 			
 			map.at(x, y).addActor(new Zombie("Mambo's Zombie"));
 			
@@ -54,9 +51,9 @@ public class summoningAction extends Action{
 		
 		for (int i = 0; i < 5; i++) {
 			
-			boolean summoningStatus = addZombie(map);
+			boolean summoningStatus = addZombie(map, actor);
 			while (summoningStatus == false) {
-				summoningStatus = addZombie(map);
+				summoningStatus = addZombie(map, actor);
 			}
 		}
 		
