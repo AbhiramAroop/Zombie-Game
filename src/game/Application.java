@@ -81,12 +81,6 @@ public class Application {
 		
 		town.at(30, 20).addActor(new Zombie("Grian"));
 		town.at(30,  18).addActor(new Zombie("Bo"));
-		town.at(10,  4).addActor(new Zombie("Urgh"));
-		town.at(50, 18).addActor(new Zombie("Mortal"));
-		town.at(1, 10).addActor(new Zombie("Gah"));
-		town.at(62, 12).addActor(new Zombie("Argh"));
-		town.at(30, 12).addActor(new Farmer("Jimmy"));
-		town.at(31, 14).addActor(new Farmer("John"));
 		
 		world.run();
 	}
@@ -134,7 +128,8 @@ public class Application {
 		map.at(18,3).addItem(new Shotgun());
 		map.at(15,7).addItem(new Ammo());
 		map.at(18,7).addItem(new Ammo());		
-		
+		map.at(73,19).addItem(new Ammo());
+		map.at(72,18).addItem(new Ammo());
 		
 		return map;
 		

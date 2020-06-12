@@ -42,8 +42,8 @@ public class ShotgunAction extends Action{
 			for (int i = x - bound ; i <= x + bound ; i++) {
 				if (inRange(i, y+z*bound, map)) {
 					Actor target = map.getActorAt(map.at(i, y + z*bound));
-					if (target instanceof Zombie || target instanceof MamboMarie) {
-						shoot(target, player, map);
+					if ((target instanceof Zombie || target instanceof MamboMarie)) {
+						shoot(player, target, map);
 					}
 				}
 			}
