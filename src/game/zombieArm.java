@@ -10,7 +10,7 @@ public class zombieArm extends WeaponItem{
 	 * A Zombie arm
 	 */
 	public zombieArm() {
-		super("zombie arm", 'A', 12, "whacks");
+		super("zombie arm", 'A', 15, "whacks");
 
 	}
 

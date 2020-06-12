@@ -8,7 +8,7 @@ public class zombieMace extends WeaponItem{
 	 * An upgraded weapon from a Zombie leg
 	 */
 	public zombieMace() {
-		super("Zombie mace", 'M', 17, "thump");
+		super("Zombie mace", 'M', 30, "thump");
 		
 	}
 

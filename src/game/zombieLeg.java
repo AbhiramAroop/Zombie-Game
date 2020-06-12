@@ -8,7 +8,7 @@ public class zombieLeg extends WeaponItem{
 	 * A Zombie leg
 	 */
 	public zombieLeg() {
-		super("zombie leg", 'L', 14, "thump");
+		super("zombie leg", 'L', 18, "thump");
 		
 	}
 

@@ -23,17 +23,24 @@ public class summoningAction extends Action{
 	public boolean addZombie(GameMap map, Actor actor) {
 		
 		Random xVal = new Random();
-		Random yVal = new Random();
 		
-		int x = xVal.nextInt(10) + (map.locationOf(actor).x() - 4);
-		int y = yVal.nextInt(10)  + (map.locationOf(actor).y() - 4);
+		int minX = xVal.nextInt(6);
+		int maxX = xVal.nextInt(6);
+		int minY = xVal.nextInt(6);
+		int maxY = xVal.nextInt(6);
 		
-		if (!(map.at(x, y).getGround() instanceof Fence) && (map.at(x, y).getActor() == null) && (map.getXRange().min() < x) &&  (x < map.getXRange().max()) && (map.getYRange().min() < y) && (y < map.getYRange().max()) )  {
+		
+		int x = map.locationOf(actor).x() + maxX - minX;
+		int y = map.locationOf(actor).y() + maxY - minY;
+		
+		if (x < map.getXRange().min() || x > map.getXRange().max() || y < map.getYRange().min() || y > map.getYRange().max()) return false;
+		
+		if (!(map.at(x, y).getGround() instanceof Fence) && (map.at(x, y).getActor() == null)) {
 			
 			map.at(x, y).addActor(new Zombie("Mambo's Zombie"));
 			
 			return true;
-		}
+			}
 		
 		return false;
 	}

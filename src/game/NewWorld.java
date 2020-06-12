@@ -186,9 +186,11 @@ public class NewWorld extends World{
 			System.out.println("player has left Town!");
 		}
 		
-		else super.processActorTurn(actor);
-		
-		
+		else {
+			if (actorLocations.contains(actor)) {
+				super.processActorTurn(actor);
+			}
+		}
 		
 	}
 	
